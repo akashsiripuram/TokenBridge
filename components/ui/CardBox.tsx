@@ -1,3 +1,4 @@
+import Select from "./Select";
 interface Token {
   symbol: string;
   logoURI: string;
@@ -24,23 +25,14 @@ export default function SwapField({
   variant,
   tokens,
 }: SwapFieldProps) {
+
   return (
     <div
       className={`flex flex-col border gap-2 p-4 rounded-2xl border-gray-600 ${variantStyles[variant]}`}
     >
       <div className="text-sm">{label}</div>
       <div className="flex flex-row items-center gap-2">
-        {tokens?.length > 0 ? (
-          <select className="border rounded-md px-2 py-1">
-            {tokens.map((token) => (
-              <option key={token.address} value={token.symbol}>
-                {token.symbol}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <div>Loading tokens...</div>
-        )}
+        <Select tokens={tokens} />
         <input
           type="text"
           value={value}

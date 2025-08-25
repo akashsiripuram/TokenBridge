@@ -12,6 +12,7 @@ export default function Home() {
   const [sellAmount, setSellAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState("");
   const [tokens, setTokens] = useState<Token[]>([]);
+  const [selectedToken,setSelectedToken]=useState<Token>();
   useEffect(() => {
     fetchTokens();
   }, []);
@@ -41,6 +42,7 @@ export default function Home() {
           placeholder="0"
           variant="secondary"
           tokens={tokens}
+         
         />
         <Button variant="secondary" size="md" text="Swap" />
       </div>
