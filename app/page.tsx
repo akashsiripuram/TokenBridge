@@ -1,27 +1,31 @@
 "use client";
 import Button from "@/components/ui/button";
-import SwapField from "@/components/ui/CardBox";
+import SwapField from "@/components/ui/SwapModel";
 import axios from "axios";
 import { useEffect, useState } from "react";
+
 interface Token {
   symbol: string;
   logoURI: string;
   address: string;
 }
+
 export default function Home() {
   const [sellAmount, setSellAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState("");
   const [tokens, setTokens] = useState<Token[]>([]);
-  const [selectedToken,setSelectedToken]=useState<Token>();
+  const [sellToken, setSellToken] = useState<Token | undefined>();
+  const [buyToken, setBuyToken] = useState<Token | undefined>();
+
   useEffect(() => {
     fetchTokens();
   }, []);
+
   async function fetchTokens() {
     const response = await axios.get(
       "https://tokens.jup.ag/tokens?tags=verified"
     );
     setTokens(response.data);
-    console.log(response);
   }
 
   return (
@@ -30,19 +34,24 @@ export default function Home() {
         <SwapField
           label="Selling"
           value={sellAmount}
-          onChange={(val) => setSellAmount(val)}
+          onChange={setSellAmount}
           placeholder="0"
           variant="primary"
           tokens={tokens}
+          selected={sellToken}
+          setSelected={setSellToken}
+          disable={false}
         />
         <SwapField
           label="Buying"
           value={buyAmount}
-          onChange={(val) => setBuyAmount(val)}
+          onChange={setBuyAmount}
           placeholder="0"
           variant="secondary"
           tokens={tokens}
-         
+          selected={buyToken}
+          setSelected={setBuyToken}
+          disable={true}
         />
         <Button variant="secondary" size="md" text="Swap" />
       </div>
