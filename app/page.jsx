@@ -17,6 +17,7 @@ import {
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
+import { toast, Toaster } from "sonner";
 
 export default function Home() {
   const [sellAmount, setSellAmount] = useState("");
@@ -61,7 +62,7 @@ export default function Home() {
           wallet.publicKey
         );
         const tokenAccountInfo = await getAccount(connection, tokenAddress);
-        console.log(tokenAccountInfo, tokenAddress);
+
         const balanceInToken =
           Number(tokenAccountInfo.amount) / Math.pow(10, sellToken.decimals);
         return balanceInToken;
@@ -76,8 +77,6 @@ export default function Home() {
   //@ts-ignore
   async function checkUserBalance(token) {
     const userBalance = await tokenBalance(token);
-    console.log(userBalance);
-    console.log(userBalance);
     return userBalance;
   }
 
@@ -92,6 +91,7 @@ export default function Home() {
   }, [tokens]);
   const fetchQouteResponses = useCallback(async () => {
     if (!sellToken || !buyToken) return;
+
     const parsedSellAmount = parseFloat(sellAmount);
     const slippageBps = 0.5 * 100;
     const apiUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${
@@ -99,8 +99,10 @@ export default function Home() {
     }&outputMint=${buyToken.address}&amount=${Math.floor(
       parsedSellAmount * Math.pow(10, sellToken.decimals)
     )}&slippageBps=${slippageBps}`;
+
     try {
       const response = await axios.get(apiUrl);
+
       if (response.data) {
         setQuoteResponse(response.data);
         const outputAmount = calculateOutputAmout(
@@ -108,6 +110,7 @@ export default function Home() {
           buyToken
         );
         setBuyAmount(outputAmount.toFixed(6));
+        return response.data;
       }
     } catch (err) {
       console.log(err);
@@ -138,6 +141,7 @@ export default function Home() {
       parseFloat(sellToken.balance) <= 0 ||
       parseFloat(sellAmount) > parseFloat(userBalance)
     ) {
+      toast.error("Insuffiecient funds");
       return;
     }
 
@@ -194,6 +198,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
+      <Toaster />
       <div className="flex flex-col gap-2 border-[1px] rounded-lg py-4 border-gray-600">
         <div className="flex flex-row justify-between p-2 pt-0 border-b-[1px] border-gray-600 px-4">
           <p className="text-2xl p-2 font-semibold">Connect Wallet</p>

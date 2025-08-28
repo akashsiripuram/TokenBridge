@@ -17,6 +17,6 @@ const sizeClasses = {
 };
 const defaultStyles="px-4 py-2 rounded-md cursor-pointer";
 
-export default function Button({variant,text,size}:ButtonProps) {
-  return <button className={`${defaultStyles} ${variantClasses[variant]} ${sizeClasses[size]}`} >{text}</button>;
+export default function Button({variant,text,size,onClick}:ButtonProps) {
+  return <button className={`${defaultStyles} ${variantClasses[variant]} ${sizeClasses[size]}`} onClick={onClick} >{text}</button>;
 }
