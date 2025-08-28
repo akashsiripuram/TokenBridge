@@ -2,6 +2,7 @@ interface ButtonProps {
   variant: "primary" | "secondary";
   text: string;
   size: "sm" | "md" | "lg";
+  onClick?: () => void;
 }
 const variantClasses = {
   primary: "bg-[#0166ff] text-white",

@@ -25,20 +25,28 @@ export default function Home() {
   const [sellToken, setSellToken] = useState();
   const [buyToken, setBuyToken] = useState();
   const [qouteResponse, setQuoteResponse] = useState();
-  const network = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const [userBalance, setUserBalance] = useState();
 
+  //wallet object
+  const wallet = useWallet();
+  const { connection } = useConnection();
+  useEffect(() => {
+    if (sellToken && wallet.publicKey) {
+      checkUserBalance(sellToken).then(setUserBalance);
+    }
+  }, [sellToken, wallet.publicKey]);
   useEffect(() => {
     fetchTokens();
   }, []);
-  const wallet = useWallet();
-  const { connection } = useConnection();
+  //fetching tokens
   async function fetchTokens() {
     const response = await axios.get(
       "https://tokens.jup.ag/tokens?tags=verified"
     );
     setTokens(response.data);
   }
+
+  //balances
   //@ts-ignore
   const tokenBalance = async (sellToken) => {
     try {
@@ -63,6 +71,8 @@ export default function Home() {
       return 0;
     }
   };
+
+  //user balances
   //@ts-ignore
   async function checkUserBalance(token) {
     const userBalance = await tokenBalance(token);
@@ -71,18 +81,6 @@ export default function Home() {
     return userBalance;
   }
 
-  //@ts-ignore
-  const handleCalculateOutAmts = (amt, token) => {
-    // Special handling for USDC and USDT on Solana
-    if (
-      (token.symbol === "USDC" || token.symbol === "USDT") &&
-      token.address.startsWith("EPj")
-    ) {
-      return amt / Math.pow(10, 6);
-    }
-    // For all other tokens, use the token's decimals
-    return amt / Math.pow(10, token.decimals);
-  };
   useEffect(() => {
     if (tokens.length > 0 && !sellToken && !buyToken) {
       const sol = tokens.find((t) => t.symbol === "SOL");
@@ -138,7 +136,7 @@ export default function Home() {
 
     if (
       parseFloat(sellToken.balance) <= 0 ||
-      parseFloat(sellAmount) > parseFloat(sellToken.balance)
+      parseFloat(sellAmount) > parseFloat(userBalance)
     ) {
       return;
     }
@@ -190,11 +188,10 @@ export default function Home() {
       console.error("Error signing or sending the transaction:", error);
     }
   };
-  useEffect(()=>{
-
+  useEffect(() => {
     fetchQouteResponses();
-  },[]);
-  console.log("buy",buyAmount)
+  }, [sellAmount, sellToken, buyToken]);
+
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <div className="flex flex-col gap-2 border-[1px] rounded-lg py-4 border-gray-600">
@@ -227,7 +224,12 @@ export default function Home() {
           />
         </div>
         <div className="flex items-center justify-center w-full">
-          <Button variant="secondary" size="md" text="Swap" />
+          <Button
+            variant="secondary"
+            size="md"
+            text="Swap"
+            onClick={handleSwap}
+          />
         </div>
       </div>
     </div>
